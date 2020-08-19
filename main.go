@@ -1,0 +1,20 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/TariqueNasrullah/graphql-server/graph"
+)
+
+func main() {
+	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
+		result := graph.ExecuteQuery(r.URL.Query().Get("query"))
+		json.NewEncoder(w).Encode(result)
+	})
+
+	fmt.Println("Now server is running on port 8080")
+	fmt.Println("Test with Get      : curl -g 'http://localhost:8080/graphql?query={Book(Id:\"1\"){Title}}'")
+	http.ListenAndServe(":8080", nil)
+}
