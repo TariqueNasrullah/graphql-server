@@ -14,11 +14,33 @@ var qureyType = graphql.NewObject(
 		Name: "GetBooksOfAuthor",
 		Fields: graphql.Fields{
 			"book": &graphql.Field{
-				Type: graphql.NewList(bookType),
+				Type: graphql.NewList(listBookType),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					authorName := p.Context.Value("authorName").(string)
 					query := fmt.Sprintf("for author in Author filter author.name=='%s' for book in 1..1 outbound author graph 'BookList' return book", authorName)
 
+					bindVars := map[string]interface{}{}
+					coursor, err := database.Db.Query(context.Background(), query, bindVars)
+					if err != nil {
+						logrus.Errorln(err)
+						return nil, err
+					}
+					defer coursor.Close()
+
+					var books []Book
+					for coursor.HasMore() {
+						var b Book
+						meta, _ := coursor.ReadDocument(context.Background(), &b)
+						b.ID = meta.Key
+						books = append(books, b)
+					}
+					return books, nil
+				},
+			},
+			"books": &graphql.Field{
+				Type: graphql.NewList(bookType),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					query := "for book in Book return book"
 					bindVars := map[string]interface{}{}
 					coursor, err := database.Db.Query(context.Background(), query, bindVars)
 					if err != nil {

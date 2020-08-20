@@ -25,7 +25,10 @@ func main() {
 		// result := graph.ExecuteQuery(r.URL.Query().Get("query"))
 
 		var loaders = make(map[string]*dataloader.Loader, 1)
-		loaders["GetAuthor"] = dataloader.NewBatchedLoader(graph.GetAuthorBatchFn)
+
+		loaders["GetAuthorByAuthorName"] = dataloader.NewBatchedLoader(graph.GetAuthorByAuthorNameBatchFn)
+		loaders["GetAuthors"] = dataloader.NewBatchedLoader(graph.GetAuthorsBatchFn)
+
 		ctx := context.WithValue(context.Background(), "loaders", loaders)
 
 		result := graph.ExecuteQuery(ctx, p.Query)

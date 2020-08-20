@@ -9,31 +9,53 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func prepareKeyListQueryFilterString(keys []string) string {
-	str := "["
-
-	for idx, key := range keys {
-		str += fmt.Sprintf("'%s'", key)
-
-		if idx < len(keys)-1 {
-			str += ","
-		}
-	}
-	str += "]"
-
-	return str
+var handleErrorFunc = func(err error) []*dataloader.Result {
+	var results []*dataloader.Result
+	var result dataloader.Result
+	result.Error = err
+	results = append(results, &result)
+	return results
 }
 
-// GetAuthorBatchFn batch function of lazy loading author data from database
-func GetAuthorBatchFn(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+// GetAuthorsBatchFn batch function
+func GetAuthorsBatchFn(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+	handleError := handleErrorFunc
 
-	handleError := func(err error) []*dataloader.Result {
-		var results []*dataloader.Result
-		var result dataloader.Result
-		result.Error = err
-		results = append(results, &result)
-		return results
+	var authorIds []string
+	for _, key := range keys {
+		authorIds = append(authorIds, key.String())
 	}
+
+	var authors = make([]Author, len(authorIds))
+
+	metaSlice, errorSlice, err := database.AuthorCollecction.ReadDocuments(ctx, authorIds, authors)
+	if err != nil {
+		logrus.Errorln(err)
+		return handleError(err)
+	}
+
+	var results []*dataloader.Result
+
+	for idx, author := range authors {
+		if errorSlice[idx] != nil {
+			return handleError(errorSlice[idx])
+		}
+		author.ID = metaSlice[idx].Key
+		result := dataloader.Result{
+			Data:  author,
+			Error: nil,
+		}
+
+		results = append(results, &result)
+	}
+
+	logrus.Infof("[GetAuthorBachFn] batch size %d\n", len(results))
+	return results
+}
+
+// GetAuthorByAuthorNameBatchFn batch function of lazy loading author data from database
+func GetAuthorByAuthorNameBatchFn(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+	handleError := handleErrorFunc
 
 	var authorName []string
 	for _, key := range keys {
@@ -64,5 +86,16 @@ func GetAuthorBatchFn(ctx context.Context, keys dataloader.Keys) []*dataloader.R
 
 	logrus.Infof("[GetAuthorBachFn] batch size %d\n", len(results))
 	return results
+}
 
+func prepareKeyListQueryFilterString(keys []string) string {
+	str := "["
+	for idx, key := range keys {
+		str += fmt.Sprintf("'%s'", key)
+		if idx < len(keys)-1 {
+			str += ","
+		}
+	}
+	str += "]"
+	return str
 }

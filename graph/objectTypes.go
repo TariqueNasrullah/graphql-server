@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"github.com/graph-gophers/dataloader"
 	"github.com/graphql-go/graphql"
 )
 
@@ -35,6 +34,23 @@ var bookType = graphql.NewObject(
 			"description": &graphql.Field{
 				Type: graphql.String,
 			},
+		},
+	},
+)
+
+var listBookType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "book",
+		Fields: graphql.Fields{
+			"id": &graphql.Field{
+				Type: graphql.String,
+			},
+			"title": &graphql.Field{
+				Type: graphql.String,
+			},
+			"description": &graphql.Field{
+				Type: graphql.String,
+			},
 			"author": &graphql.Field{
 				Type: authorType,
 				Args: graphql.FieldConfigArgument{
@@ -42,25 +58,19 @@ var bookType = graphql.NewObject(
 						Type: graphql.String,
 					},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					var (
-						v       = p.Context.Value
-						loaders = v("loaders").(map[string]*dataloader.Loader)
-					)
-
-					authorName := p.Args["name"].(string)
-
-					thunk := loaders["GetAuthor"].Load(p.Context, dataloader.StringKey(authorName))
-
-					return func() (interface{}, error) {
-						author, err := thunk()
-						if err != nil {
-							return nil, err
-						}
-						return author, nil
-					}, nil
-				},
+				Resolve: getBooksOfAuthorResolver,
 			},
 		},
 	},
 )
+
+func init() {
+	bookType.AddFieldConfig("authors", &graphql.Field{
+		Type:    graphql.NewList(authorType),
+		Resolve: getAuthorsResolver,
+	})
+	authorType.AddFieldConfig("books", &graphql.Field{
+		Type:    graphql.NewList(bookType),
+		Resolve: getBooksResolver,
+	})
+}
