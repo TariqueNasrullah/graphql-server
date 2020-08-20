@@ -17,7 +17,12 @@ var qureyType = graphql.NewObject(
 				Type: graphql.NewList(listBookType),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					authorName := p.Context.Value("authorName").(string)
-					query := fmt.Sprintf("for author in Author filter author.name=='%s' for book in 1..1 outbound author graph 'BookList' return book", authorName)
+					query := fmt.Sprintf(`for author in Author
+						filter author.name=='%s'
+						for book in Book
+						for authid in book.authors
+						filter authid.id==author._key
+						return book`, authorName)
 
 					bindVars := map[string]interface{}{}
 					coursor, err := database.Db.Query(context.Background(), query, bindVars)
