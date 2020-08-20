@@ -1,0 +1,42 @@
+package graph
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/TariqueNasrullah/graphql-server/database"
+	"github.com/graphql-go/graphql"
+	"github.com/sirupsen/logrus"
+)
+
+var qureyType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "GetBooksOfAuthor",
+		Fields: graphql.Fields{
+			"book": &graphql.Field{
+				Type: graphql.NewList(bookType),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					authorName := p.Context.Value("authorName").(string)
+					query := fmt.Sprintf("for author in Author filter author.name=='%s' for book in 1..1 outbound author graph 'BookList' return book", authorName)
+
+					bindVars := map[string]interface{}{}
+					coursor, err := database.Db.Query(context.Background(), query, bindVars)
+					if err != nil {
+						logrus.Errorln(err)
+						return nil, err
+					}
+					defer coursor.Close()
+
+					var books []Book
+					for coursor.HasMore() {
+						var b Book
+						meta, _ := coursor.ReadDocument(context.Background(), &b)
+						b.ID = meta.Key
+						books = append(books, b)
+					}
+					return books, nil
+				},
+			},
+		},
+	},
+)

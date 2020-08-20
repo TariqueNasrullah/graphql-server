@@ -2,16 +2,14 @@ package graph
 
 // Book model
 type Book struct {
-	ID          string `json:"Id"`
-	Title       string `json:"Title"`
-	Description string `json:"Description"`
-	Author      Author `json:"Author"`
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 // Author Model
 type Author struct {
-	ID     string `json:"Id"`
-	Name   string `json:"Name"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
 	ISBNNo string `json:"isbn_no"`
-	Books  []Book `json:"Books"`
 }
