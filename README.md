@@ -18,10 +18,31 @@ book {
 }
 ```
 
+#### Table Of Contents
+
+[Server Setup](#server-setup)
+[Mutations](#mutation)
+[Query](#query)
+[Solving N+1 Problem](#solving-n1-problem)
+
+### Server Setup
+
 Database `ArangoDB`. Spin up database
 
-```
+```DockerFile
 docker-compose up -d
+```
+
+Get project dependency
+
+```golang
+go get -v ./...
+```
+
+Run
+
+```golang
+go run main.go
 ```
 
 ## Mutation
@@ -139,7 +160,7 @@ query {
 }
 ```
 
-### Solving N+1 Problem
+## Solving N+1 Problem
 
 The N+1 problem means that server executes multiple nnecessary round trips to datastores for nested data. Lets say we are querying an author and all of his books. If this particular author has `N` books the server will hit datastore 1 time for author and N times to retrieve N books. Hence it is called N+1 problem.
 
