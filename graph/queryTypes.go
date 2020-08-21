@@ -64,6 +64,28 @@ var qureyType = graphql.NewObject(
 					return books, nil
 				},
 			},
+			"authors": &graphql.Field{
+				Type: graphql.NewList(authorType),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					query := "for author in Author return author"
+					bindVars := map[string]interface{}{}
+					coursor, err := database.Db.Query(context.Background(), query, bindVars)
+					if err != nil {
+						logrus.Errorln(err)
+						return nil, err
+					}
+					defer coursor.Close()
+
+					var authors []Author
+					for coursor.HasMore() {
+						var author Author
+						meta, _ := coursor.ReadDocument(context.Background(), &author)
+						author.ID = meta.Key
+						authors = append(authors, author)
+					}
+					return authors, nil
+				},
+			},
 		},
 	},
 )

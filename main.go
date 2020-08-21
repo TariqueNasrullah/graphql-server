@@ -28,6 +28,7 @@ func main() {
 
 		loaders["GetAuthorByAuthorName"] = dataloader.NewBatchedLoader(graph.GetAuthorByAuthorNameBatchFn)
 		loaders["GetAuthors"] = dataloader.NewBatchedLoader(graph.GetAuthorsBatchFn)
+		loaders["GetBooks"] = dataloader.NewBatchedLoader(graph.GetBooksBatchFn)
 
 		ctx := context.WithValue(context.Background(), "loaders", loaders)
 

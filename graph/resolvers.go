@@ -27,6 +27,31 @@ var getBooksOfAuthorResolver = func(p graphql.ResolveParams) (interface{}, error
 	}, nil
 }
 
+var getBooksResolver = func(p graphql.ResolveParams) (interface{}, error) {
+	var (
+		sourceAuthor = p.Source.(Author)
+		v            = p.Context.Value
+		loaders      = v("loaders").(map[string]*dataloader.Loader)
+		// handleErrors = func(errors []error) error {
+		// 	var errs []string
+		// 	for _, e := range errors {
+		// 		errs = append(errs, e.Error())
+		// 	}
+		// 	return fmt.Errorf(strings.Join(errs, "\n"))
+		// }
+	)
+
+	thunk := loaders["GetBooks"].Load(p.Context, dataloader.StringKey(sourceAuthor.ID))
+
+	return func() (interface{}, error) {
+		books, err := thunk()
+		if err != nil {
+			return nil, err
+		}
+		return books, nil
+	}, nil
+}
+
 var getAuthorsResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	var (
 		sourceBook   = p.Source.(Book)
@@ -58,10 +83,6 @@ var getAuthorsResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		}
 		return author, nil
 	}, nil
-}
-
-var getBooksResolver = func(p graphql.ResolveParams) (interface{}, error) {
-	return []Book{book}, nil
 }
 
 var author = Author{
