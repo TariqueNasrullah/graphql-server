@@ -34,6 +34,5 @@ func main() {
 
 	// Run  http Server
 	fmt.Println("Server is running on port 8080")
-	fmt.Println("Test with Get      : curl -g 'http://localhost:8080/graphql?query={Book(Id:\"1\"){Title}}'")
 	http.ListenAndServe(":8080", nil)
 }
