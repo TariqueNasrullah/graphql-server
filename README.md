@@ -3,19 +3,25 @@
 A basic GraphQL server based on following Schema.
 
 ```GraphQL
-    author {
-        Id
-        Name
-        ISBN No
-        Books [book]
-    }
+author {
+    Id
+    Name
+    ISBN No
+    Books [book]
+}
 
-    book {
-        Id
-        Title
-        Description
-        Authors [author]
-    }
+book {
+    Id
+    Title
+    Description
+    Authors [author]
+}
+```
+
+Database `ArangoDB`. Spin up database
+
+```
+docker-compose up -d
 ```
 
 ## Mutation
@@ -132,5 +138,3 @@ query {
   }
 }
 ```
-
-curl -g 'http://localhost:8080/graphql?query={authors{id,name}}'
