@@ -2,7 +2,7 @@
 
 A basic GraphQL server based on following Schema.
 
-```
+```GraphQL
     author {
         Id
         Name
@@ -22,15 +22,15 @@ A basic GraphQL server based on following Schema.
 
 Create Author
 
-```
+```cURL
 curl -g 'http://localhost:8080/graphql?query=mutation+_{author(name:"pavel",isbn_no:"19923"){id,name,isbn_no}}'
 ```
 
-or
+or in GraphiQL
 
-```
+```json
 mutation {
-  author(name:"tarique", isbn_no:"5"){
+  author(name:"pavel", isbn_no:"19923"){
     id
     name
     isbn_no
