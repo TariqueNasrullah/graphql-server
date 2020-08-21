@@ -145,4 +145,4 @@ The N+1 problem means that server executes multiple nnecessary round trips to da
 
 In our simple server this particular problem happens. To solve this issue we have handy tool called `DataLoader`. Essentially what it does is wait for all your resolvers to load in their individual keys. Once it has them, it hits the DB once with the keys, and returns a promise that resolves an array of the values. It batches our queries instead of making one at a time.
 
-We used Golang DataLoader lib github.com/graph-gophers/dataloader
+We used Golang DataLoader lib 'github.com/graph-gophers/dataloader'
