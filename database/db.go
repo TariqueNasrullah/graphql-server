@@ -55,7 +55,7 @@ func InitDB() {
 	if !authorExists {
 		_, err = Db.CreateCollection(nil, "Author", nil)
 		handle(err)
-		logrus.Infoln("")
+		logrus.Infoln("Author Collection Migratino Successfull.")
 	}
 
 	// Database connecton to Book Collection
