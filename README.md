@@ -67,6 +67,8 @@ mutation {
 
 ### Create Book
 
+Pass a list of known authorIds in the `authors` argument
+
 ```
 curl -g 'http://localhost:8080/graphql?query=mutation+_{book(title:"A+Book+of+Fire",description:"A+World+Famous+Book",authors:["154"]){id,title,description}}'
 ```
