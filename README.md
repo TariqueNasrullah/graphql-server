@@ -138,3 +138,11 @@ query {
   }
 }
 ```
+
+### Solving N+1 Problem
+
+The N+1 problem means that server executes multiple nnecessary round trips to datastores for nested data. Lets say we are querying an author and all of his books. If this particular author has `N` books the server will hit datastore 1 time for author and N times to retrieve N books. Hence it is called N+1 problem.
+
+In our simple server this particular problem happens. To solve this issue we have handy tool called `DataLoader`. Essentially what it does is wait for all your resolvers to load in their individual keys. Once it has them, it hits the DB once with the keys, and returns a promise that resolves an array of the values. It batches our queries instead of making one at a time.
+
+We used Golang DataLoader lib github.com/graph-gophers/dataloader
