@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// GraphQL query type
 var qureyType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "GetBooksOfAuthor",
@@ -16,7 +17,10 @@ var qureyType = graphql.NewObject(
 			"book": &graphql.Field{
 				Type: graphql.NewList(listBookType),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					// Get AuthorName from the context
 					authorName := p.Context.Value("authorName").(string)
+
+					// Construct query to get bookList of the author
 					query := fmt.Sprintf(`for author in Author
 						filter author.name=='%s'
 						for book in Book
@@ -24,6 +28,7 @@ var qureyType = graphql.NewObject(
 						filter authid.id==author._key
 						return book`, authorName)
 
+					// Execute query
 					bindVars := map[string]interface{}{}
 					coursor, err := database.Db.Query(context.Background(), query, bindVars)
 					if err != nil {
@@ -32,6 +37,7 @@ var qureyType = graphql.NewObject(
 					}
 					defer coursor.Close()
 
+					// Extract books from query result
 					var books []Book
 					for coursor.HasMore() {
 						var b Book
@@ -42,10 +48,14 @@ var qureyType = graphql.NewObject(
 					return books, nil
 				},
 			},
+			// books - returns all Books currently in the database
 			"books": &graphql.Field{
 				Type: graphql.NewList(bookType),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					// Construct query
 					query := "for book in Book return book"
+
+					// Execute query
 					bindVars := map[string]interface{}{}
 					coursor, err := database.Db.Query(context.Background(), query, bindVars)
 					if err != nil {
@@ -54,6 +64,7 @@ var qureyType = graphql.NewObject(
 					}
 					defer coursor.Close()
 
+					// Extract books from the query result
 					var books []Book
 					for coursor.HasMore() {
 						var b Book
@@ -64,10 +75,14 @@ var qureyType = graphql.NewObject(
 					return books, nil
 				},
 			},
+			// authors - returns all Authors in the database
 			"authors": &graphql.Field{
 				Type: graphql.NewList(authorType),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					// Construct query
 					query := "for author in Author return author"
+
+					// Execute qury
 					bindVars := map[string]interface{}{}
 					coursor, err := database.Db.Query(context.Background(), query, bindVars)
 					if err != nil {
@@ -76,6 +91,7 @@ var qureyType = graphql.NewObject(
 					}
 					defer coursor.Close()
 
+					// Extract Authors from the query result
 					var authors []Author
 					for coursor.HasMore() {
 						var author Author

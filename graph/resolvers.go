@@ -8,6 +8,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+// getBooksOfAuthorResolver - Resolves List of Books of an Author using AuthorName
 var getBooksOfAuthorResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	var (
 		v       = p.Context.Value
@@ -16,6 +17,7 @@ var getBooksOfAuthorResolver = func(p graphql.ResolveParams) (interface{}, error
 
 	authorName := p.Args["name"].(string)
 
+	// Lazy load data from DataLoader
 	thunk := loaders["GetAuthorByAuthorName"].Load(p.Context, dataloader.StringKey(authorName))
 
 	return func() (interface{}, error) {
@@ -27,20 +29,15 @@ var getBooksOfAuthorResolver = func(p graphql.ResolveParams) (interface{}, error
 	}, nil
 }
 
+// getBooksResolver - Resolves List of Books of an Author using AuthorID
 var getBooksResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	var (
 		sourceAuthor = p.Source.(Author)
 		v            = p.Context.Value
 		loaders      = v("loaders").(map[string]*dataloader.Loader)
-		// handleErrors = func(errors []error) error {
-		// 	var errs []string
-		// 	for _, e := range errors {
-		// 		errs = append(errs, e.Error())
-		// 	}
-		// 	return fmt.Errorf(strings.Join(errs, "\n"))
-		// }
 	)
 
+	// Lazy Load data from DataLoader
 	thunk := loaders["GetBooks"].Load(p.Context, dataloader.StringKey(sourceAuthor.ID))
 
 	return func() (interface{}, error) {
@@ -52,6 +49,7 @@ var getBooksResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	}, nil
 }
 
+// getBooksResolver - Resolves List of Authors of a Book using AuthorID
 var getAuthorsResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	var (
 		sourceBook   = p.Source.(Book)
@@ -67,13 +65,14 @@ var getAuthorsResolver = func(p graphql.ResolveParams) (interface{}, error) {
 	)
 
 	var authorIds []string
-
 	for _, author := range sourceBook.Authors {
 		authorIds = append(authorIds, author.ID)
 	}
 
+	// Create keys with list of authorIDs
 	var keys = dataloader.NewKeysFromStrings(authorIds)
 
+	// Lazy Load data from DataLoader
 	thunk := loaders["GetAuthors"].LoadMany(p.Context, keys)
 
 	return func() (interface{}, error) {
@@ -83,16 +82,4 @@ var getAuthorsResolver = func(p graphql.ResolveParams) (interface{}, error) {
 		}
 		return author, nil
 	}, nil
-}
-
-var author = Author{
-	ID:     "1",
-	Name:   "tarique",
-	ISBNNo: "1234",
-}
-
-var book = Book{
-	ID:          "1",
-	Title:       "A book of happiness",
-	Description: "An incredible book",
 }

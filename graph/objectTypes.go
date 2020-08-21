@@ -4,6 +4,7 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
+// Author GraphQl Object
 var authorType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "author",
@@ -21,6 +22,7 @@ var authorType = graphql.NewObject(
 	},
 )
 
+// Book GraphQl Object
 var bookType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "book",
@@ -38,6 +40,7 @@ var bookType = graphql.NewObject(
 	},
 )
 
+// BookList GraphQl Object
 var listBookType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "book",
@@ -64,6 +67,11 @@ var listBookType = graphql.NewObject(
 	},
 )
 
+/*
+   init function add filedConfig on run time to bookType and authorTye
+   as bookType has List(authorType) field and authorType has List(bookType)
+   field. Hence creating a TypeChecking loop.
+*/
 func init() {
 	bookType.AddFieldConfig("authors", &graphql.Field{
 		Type:    graphql.NewList(authorType),
