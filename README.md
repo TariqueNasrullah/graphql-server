@@ -20,12 +20,12 @@ book {
 
 #### Table Of Contents
 
-[Server Setup](#server-setup)
-[Mutations](#mutation)
-[Query](#query)
-[Solving N+1 Problem](#solving-n1-problem)
+- [Server Setup](#server-setup)
+- [Mutations](#mutation)
+- [Query](#query)
+- [Solving N+1 Problem](#solving-n1-problem)
 
-### Server Setup
+## Server Setup
 
 Database `ArangoDB`. Spin up database
 
