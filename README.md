@@ -20,7 +20,7 @@ A basic GraphQL server based on following Schema.
 
 ## Mutation
 
-Create Author
+### Create Author
 
 ```cURL
 curl -g 'http://localhost:8080/graphql?query=mutation+_{author(name:"pavel",isbn_no:"19923"){id,name,isbn_no}}'
@@ -28,12 +28,30 @@ curl -g 'http://localhost:8080/graphql?query=mutation+_{author(name:"pavel",isbn
 
 or in GraphiQL
 
-```json
+```GraphQL
 mutation {
   author(name:"pavel", isbn_no:"19923"){
     id
     name
     isbn_no
+  }
+}
+```
+
+### Create Book
+
+```
+curl -g 'http://localhost:8080/graphql?query=mutation+_{book(title:"A+Book+of+Fire",description:"A+World+Famous+Book",authors:["154"]){id,title,description}}'
+```
+
+or in GraphiQL
+
+```GraphQL
+mutation {
+  book(title:"A Book of Fire", description:"A world famous book", authors:["154"]){
+    id
+    title
+    description
   }
 }
 ```
